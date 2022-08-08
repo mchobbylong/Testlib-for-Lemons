@@ -63,7 +63,7 @@
  */
 
 /*
- *   This is a modified version created by Xiao Mao(matthew99).
+ *   This is a modified version created by Xiao Mao (matthew99) and Liangzhou Chen (PinkRabbit).
  *   Checker for local judger is supported.
  *   You can use variable perfectScore to know the perfect score of the current test case.
  *   As we know, you can use registerTestlibCmd(argc, argv) to register a checker.
