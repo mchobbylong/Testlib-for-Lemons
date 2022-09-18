@@ -2330,6 +2330,8 @@ TTestlibMode testlibMode = _unknown;
 double __testlib_points = std::numeric_limits<float>::infinity();
 
 int perfectScore;
+bool quitpRelativeScoring = false;
+bool partialScoreTrimming = false;
 FILE *scoreFile;
 bool localJudger;
 double partialScore;
@@ -3024,9 +3026,14 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
     if (localJudger) {
         if (result == _ok)
             fprintf(scoreFile, "%d", perfectScore);
-        else if (result == _points)
-            fprintf(scoreFile, "%f", partialScore);
-        else if (isPartial)
+        else if (result == _points) {
+            if (quitpRelativeScoring)
+                partialScore *= perfectScore;
+            if (partialScoreTrimming && perfectScore >= 2)
+                partialScore = std::min(partialScore, perfectScore - 0.6),
+                partialScore = std::max(partialScore, 0.6);
+            fprintf(scoreFile, "%.0f", partialScore);
+        } else if (isPartial)
             fprintf(scoreFile, "%d", pctype);
         else
             fprintf(scoreFile, "0");
@@ -4234,7 +4241,7 @@ NORETURN void __testlib_quitp(double points, const char *message) {
 
     std::string quitMessage;
     if (localJudger) {
-        quitMessage = message;
+        quitMessage = stringPoints + " " + message;
         partialScore = points;
     } else {
         if (NULL == message || 0 == strlen(message))
