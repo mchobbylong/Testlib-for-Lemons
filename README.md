@@ -6,6 +6,18 @@ Testlib for Lemons 添加了 Testlib 对本地自定义测试和 Lemon 系评测
 
 对于 Lemon 系评测软件的 Special Judge，可以直接使用 `registerLemonChecker(argc, argv)`，类似正常使用 Testlib 的 checker 功能时的操作。
 
+### 新功能
+
+相对于 matthew99 的版本，除了 Testlib 本身的更新，还添加了以下新功能：
+
+- 还可以使用 `quitf(_pc(score), ...)` 返回测试点的部分分数了。注意 `score` 必须是整数。
+- `quitp(score, ...)` 时测试点分数变为四舍五入。
+- 提供了 `bool quitpRelativeScoring` 变量，默认为 `false`，  
+  若设置为 `true` 则 `quitp(score, ...)` 时 `score` 的意义改为得分比例，返回的分数根据 `perfectScore` 按比例调整。
+- 提供了 `bool partialScoreTrimming` 变量，默认为 `false`，  
+  若设置为 `true` 则 `quitp(score, ...)` 时强制令最终得分不为 0 或 `perfectScore`，即一定获得部分分数。
+- 添加了宏 `TESTLIB_FOR_LEMONS`。可以用来确保 checker 的跨平台兼容性。
+
 -----
 
 Testlib for Lemons 的宣传博客：[新版的 Testlib for Lemons 与对 Lemon 系列评测软件的介绍 - 粉兔 - 博客园](https://www.cnblogs.com/PinkRabbit/p/Testlib-for-Lemons.html)。
