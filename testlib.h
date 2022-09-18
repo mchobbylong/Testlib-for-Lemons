@@ -2968,6 +2968,8 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
             if (result >= _partially) {
                 errorName = format("partially correct (%d) ", pctype);
                 isPartial = true;
+                if (localJudger)
+                    message = format("%d", pctype) + " " + message;
                 quitscrS(LightYellow, errorName);
             } else
                 quit(_fail, "What is the code ??? ");
@@ -3024,6 +3026,8 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
             fprintf(scoreFile, "%d", perfectScore);
         else if (result == _points)
             fprintf(scoreFile, "%f", partialScore);
+        else if (isPartial)
+            fprintf(scoreFile, "%d", pctype);
         else
             fprintf(scoreFile, "0");
         exit(0);
