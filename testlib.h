@@ -70,6 +70,8 @@
  *   As we know, you can use registerTestlibCmd(argc, argv) to register a checker.
  *   For local judger, you can use registerLocalChecker(<Input_File>, <Output_File>, <Answer_File>, <Perfect_Score>, <Score_File>[, <Report_File>]).
  *   For lemon judger, you can simply use registerLemonChecker(argc, argv).
+ *
+ *   To report bugs or request features: https://github.com/GitPinkRabbit/Testlib-for-Lemons/issues.
  */
 
 const char *latestFeatures[] = {
