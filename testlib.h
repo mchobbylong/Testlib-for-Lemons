@@ -4681,6 +4681,7 @@ void registerTestlib(int argc, ...) {
 void registerLocalChecker(const std::string &_inputFile, const std::string &_outputFile, const std::string &_answerFile, int _perfectScore, const std::string &_scoreFile, const std::string &_reportFile = "") {
     localJudger = true;
     __testlib_ensuresPreconditions();
+    TestlibFinalizeGuard::registered = true;
 
     testlibMode = _checker;
     __testlib_set_binary(stdin);
