@@ -4261,10 +4261,15 @@ NORETURN void __testlib_quitp(int points, const char *message) {
     std::string stringPoints = format("%d", points);
 
     std::string quitMessage;
-    if (NULL == message || 0 == strlen(message))
-        quitMessage = stringPoints;
-    else
+    if (localJudger) {
         quitMessage = stringPoints + " " + message;
+        partialScore = points;
+    } else {
+        if (NULL == message || 0 == strlen(message))
+            quitMessage = stringPoints;
+        else
+            quitMessage = stringPoints + " " + message;
+    }
 
     quit(_points, quitMessage.c_str());
 }
