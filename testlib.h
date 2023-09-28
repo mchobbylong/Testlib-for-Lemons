@@ -9,7 +9,7 @@
  * sample generator sources for clarification.
  *
  * Please read the documentation for class "random_t" and use "rnd" instance in
- * generators. Probably, these sample calls will be usefull for you:
+ * generators. Probably, these sample calls will be useful for you:
  *              rnd.next(); rnd.next(100); rnd.next(1, 2);
  *              rnd.next(3.14); rnd.next("[a-z]{1,100}").
  *
@@ -109,7 +109,7 @@ const char *latestFeatures[] = {
         "Introduced space-separated read functions: readWords/readTokens, multilines read functions: readStrings/readLines",
         "Introduced space-separated read functions: readInts/readIntegers/readLongs/readUnsignedLongs/readDoubles/readReals/readStrictDoubles/readStrictReals",
         "Introduced split/tokenize functions to separate string by given char",
-        "Introduced InStream::readUnsignedLong and InStream::readLong with unsigned long long paramerters",
+        "Introduced InStream::readUnsignedLong and InStream::readLong with unsigned long long parameters",
         "Supported --testOverviewLogFileName for validator: bounds hits + features",
         "Fixed UB (sequence points) in random_t",
         "POINTS_EXIT_CODE returned back to 7 (instead of 0)",
@@ -194,6 +194,7 @@ const char *latestFeatures[] = {
 #include <stdarg.h>
 #include <fcntl.h>
 #include <functional>
+#include <cstdint>
 
 #ifdef TESTLIB_THROW_EXIT_EXCEPTION_INSTEAD_OF_EXIT
 #   include <exception>
@@ -396,6 +397,20 @@ static std::string removeDoubleTrailingZeroes(std::string value) {
         return value + '0';
     else
         return value;
+}
+
+inline std::string upperCase(std::string s) {
+    for (size_t i = 0; i < s.length(); i++)
+        if ('a' <= s[i] && s[i] <= 'z')
+            s[i] = char(s[i] - 'a' + 'A');
+    return s;
+}
+
+inline std::string lowerCase(std::string s) {
+    for (size_t i = 0; i < s.length(); i++)
+        if ('A' <= s[i] && s[i] <= 'Z')
+            s[i] = char(s[i] - 'A' + 'a');
+    return s;
 }
 
 #ifdef __GNUC__
@@ -697,7 +712,7 @@ private:
 };
 
 /*
- * Use random_t instances to generate random values. It is preffered
+ * Use random_t instances to generate random values. It is preferred
  * way to use randoms instead of rand() function or self-written
  * randoms.
  *
@@ -758,8 +773,8 @@ public:
 
     /* Sets seed by given value. */
     void setSeed(long long _seed) {
-        _seed = (_seed ^ multiplier) & mask;
-        seed = _seed;
+        seed = (unsigned long long) _seed;
+        seed = (seed ^ multiplier) & mask;
     }
 
 #ifndef __BORLANDC__
@@ -899,7 +914,10 @@ public:
         int size = int(c.size());
         if (size <= 0)
             __testlib_fail("random_t::any(const Container& c): c.size() must be positive");
-        return *(c.begin() + next(size));
+        //return *(c.begin() + next(size));
+        typename Container::const_iterator it = c.begin();
+        std::advance(it, next(size));
+        return *it;
     }
 
     /* Returns random element from iterator range. */
@@ -908,7 +926,10 @@ public:
         int size = int(end - begin);
         if (size <= 0)
             __testlib_fail("random_t::any(const Iter& begin, const Iter& end): range must have positive length");
-        return *(begin + next(size));
+        // return *(begin + next(size));
+        Iter it = begin;
+        std::advance(it, next(size));
+        return *it;
     }
 
     /* Random string value by given pattern (see pattern documentation). */
@@ -1094,7 +1115,7 @@ public:
     /* Returns weighted random element from container. */
     template<typename Container>
     typename Container::value_type wany(const Container &c, int type) {
-        size_t size = c.size();
+        int size = int(c.size());
         if (size <= 0)
             __testlib_fail("random_t::wany(const Container& c, int type): c.size() must be positive");
         return *(c.begin() + wnext(size, type));
@@ -2034,7 +2055,7 @@ struct InStream {
      */
     std::string readWord();
 
-    /* The same as "readWord()", it is preffered to use "readToken()". */
+    /* The same as "readWord()", it is preferred to use "readToken()". */
     std::string readToken();
 
     /* The same as "readWord()", but ensures that token matches to given pattern. */
@@ -2283,7 +2304,7 @@ struct InStream {
     NORETURN void quits(TResult result, std::string msg);
 
     /*
-     * Checks condition and aborts a program if codition is false.
+     * Checks condition and aborts a program if condition is false.
      * Returns _wa for ouf and _fail on any other streams.
      */
 #ifdef __GNUC__
@@ -2326,6 +2347,7 @@ InStream inf;
 InStream ouf;
 InStream ans;
 bool appesMode;
+std::string appesModeEncoding = "windows-1251";
 std::string resultName;
 std::string checkerName = "untitled checker";
 random_t rnd;
@@ -2987,7 +3009,7 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
             quit(_fail, "Can not write to the result file");
         }
         if (appesMode) {
-            std::fprintf(resultFile, "<?xml version=\"1.0\" encoding=\"windows-1251\"?>");
+            std::fprintf(resultFile, "<?xml version=\"1.0\" encoding=\"%s\"?>", appesModeEncoding.c_str());
             if (isPartial)
                 std::fprintf(resultFile, "<result outcome = \"%s\" pctype = \"%d\">",
                              outcomes[(int) _partially].c_str(), pctype);
@@ -3158,7 +3180,6 @@ void InStream::init(std::string fileName, TMode mode) {
     }
 
     reset();
-    skipBom();
 }
 
 void InStream::init(std::FILE *f, TMode mode) {
@@ -3174,7 +3195,6 @@ void InStream::init(std::FILE *f, TMode mode) {
         name = "stderr", stdfile = true;
 
     reset(f);
-    skipBom();
 }
 
 void InStream::skipBom() {
@@ -3472,7 +3492,7 @@ static inline bool equals(unsigned long long integer, const char *s) {
 }
 
 static inline double stringToDouble(InStream &in, const char *buffer) {
-    double retval;
+    double result;
 
     size_t length = strlen(buffer);
 
@@ -3506,14 +3526,14 @@ static inline double stringToDouble(InStream &in, const char *buffer) {
 
     char *suffix = new char[length + 1];
     std::memset(suffix, 0, length + 1);
-    int scanned = std::sscanf(buffer, "%lf%s", &retval, suffix);
+    int scanned = std::sscanf(buffer, "%lf%s", &result, suffix);
     bool empty = strlen(suffix) == 0;
     delete[] suffix;
 
     if (scanned == 1 || (scanned == 2 && empty)) {
-        if (__testlib_isNaN(retval))
+        if (__testlib_isNaN(result))
             in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
-        return retval;
+        return result;
     } else
         in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
 }
@@ -3534,7 +3554,7 @@ static inline double stringToStrictDouble(InStream &in, const char *buffer,
         in.quit(_fail,
                 "stringToStrictDouble: minAfterPointDigitCount should be less or equal to maxAfterPointDigitCount.");
 
-    double retval;
+    double result;
 
     size_t length = strlen(buffer);
 
@@ -3583,16 +3603,16 @@ static inline double stringToStrictDouble(InStream &in, const char *buffer,
 
     char *suffix = new char[length + 1];
     std::memset(suffix, 0, length + 1);
-    int scanned = std::sscanf(buffer, "%lf%s", &retval, suffix);
+    int scanned = std::sscanf(buffer, "%lf%s", &result, suffix);
     bool empty = strlen(suffix) == 0;
     delete[] suffix;
 
     if (scanned == 1 || (scanned == 2 && empty)) {
-        if (__testlib_isNaN(retval) || __testlib_isInfinite(retval))
+        if (__testlib_isNaN(result) || __testlib_isInfinite(result))
             in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
-        if (buffer[0] == '-' && retval >= 0)
+        if (buffer[0] == '-' && result >= 0)
             in.quit(_pe, ("Redundant minus in \"" + __testlib_part(buffer) + "\" found").c_str());
-        return retval;
+        return result;
     } else
         in.quit(_pe, ("Expected double, but \"" + __testlib_part(buffer) + "\" found").c_str());
 }
@@ -3606,24 +3626,15 @@ static inline double stringToStrictDouble(InStream &in, const std::string& buffe
 }
 
 static inline long long stringToLongLong(InStream &in, const char *buffer) {
-    if (strcmp(buffer, "-9223372036854775808") == 0)
-        return LLONG_MIN;
-
-    bool minus = false;
     size_t length = strlen(buffer);
-
-    if (length > 1 && buffer[0] == '-')
-        minus = true;
-
-    if (length > 20)
+    if (length == 0 || length > 20)
         in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
 
-    long long retval = 0LL;
-
+    bool has_minus = (length > 1 && buffer[0] == '-');
     int zeroes = 0;
     bool processingZeroes = true;
 
-    for (int i = (minus ? 1 : 0); i < int(length); i++) {
+    for (int i = (has_minus ? 1 : 0); i < int(length); i++) {
         if (buffer[i] == '0' && processingZeroes)
             zeroes++;
         else
@@ -3631,24 +3642,21 @@ static inline long long stringToLongLong(InStream &in, const char *buffer) {
 
         if (buffer[i] < '0' || buffer[i] > '9')
             in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
-        retval = retval * 10 + (buffer[i] - '0');
     }
 
-    if (retval < 0)
+    long long int result;
+    try {
+        result = std::stoll(buffer);
+    } catch (const std::exception&) {
+        in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+    } catch (...) {
+        in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+    }
+
+    if ((zeroes > 0 && (result != 0 || has_minus)) || zeroes > 1)
         in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
 
-    if ((zeroes > 0 && (retval != 0 || minus)) || zeroes > 1)
-        in.quit(_pe, ("Expected integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
-
-    retval = (minus ? -retval : +retval);
-
-    if (length < 19)
-        return retval;
-
-    if (equals(retval, buffer))
-        return retval;
-    else
-        in.quit(_pe, ("Expected int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+    return result;
 }
 
 static inline long long stringToLongLong(InStream &in, const std::string& buffer) {
@@ -3661,28 +3669,26 @@ static inline long long stringToLongLong(InStream &in, const std::string& buffer
 static inline unsigned long long stringToUnsignedLongLong(InStream &in, const char *buffer) {
     size_t length = strlen(buffer);
 
-    if (length > 20)
+    if (length == 0 || length > 20)
         in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
     if (length > 1 && buffer[0] == '0')
         in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
 
-    unsigned long long retval = 0LL;
     for (int i = 0; i < int(length); i++) {
         if (buffer[i] < '0' || buffer[i] > '9')
             in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
-        retval = retval * 10 + (buffer[i] - '0');
     }
 
-    if (length < 19)
-        return retval;
+    unsigned long long result;
+    try {
+        result = std::stoull(buffer);
+    } catch (const std::exception&) {
+        in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+    } catch (...) {
+        in.quit(_pe, ("Expected unsigned integer, but \"" + __testlib_part(buffer) + "\" found").c_str());
+    }
 
-    if (length == 20 && strcmp(buffer, "18446744073709551615") > 0)
-        in.quit(_pe, ("Expected unsigned int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
-
-    if (equals(retval, buffer))
-        return retval;
-    else
-        in.quit(_pe, ("Expected unsigned int64, but \"" + __testlib_part(buffer) + "\" found").c_str());
+    return result;
 }
 
 static inline long long stringToUnsignedLongLong(InStream &in, const std::string& buffer) {
@@ -4443,6 +4449,30 @@ void registerGen(int argc, char *argv[]) {
 }
 #endif
 
+void setAppesModeEncoding(std::string appesModeEncoding) {
+    static const char* const ENCODINGS[] = {"ascii", "utf-7", "utf-8", "utf-16", "utf-16le", "utf-16be", "utf-32", "utf-32le", "utf-32be", "iso-8859-1", 
+"iso-8859-2", "iso-8859-3", "iso-8859-4", "iso-8859-5", "iso-8859-6", "iso-8859-7", "iso-8859-8", "iso-8859-9", "iso-8859-10", "iso-8859-11", 
+"iso-8859-13", "iso-8859-14", "iso-8859-15", "iso-8859-16", "windows-1250", "windows-1251", "windows-1252", "windows-1253", "windows-1254", "windows-1255", 
+"windows-1256", "windows-1257", "windows-1258", "gb2312", "gbk", "gb18030", "big5", "shift-jis", "euc-jp", "euc-kr", 
+"euc-cn", "euc-tw", "koi8-r", "koi8-u", "tis-620", "ibm437", "ibm850", "ibm852", "ibm855", "ibm857", 
+"ibm860", "ibm861", "ibm862", "ibm863", "ibm865", "ibm866", "ibm869", "macroman", "maccentraleurope", "maciceland", 
+"maccroatian", "macromania", "maccyrillic", "macukraine", "macgreek", "macturkish", "machebrew", "macarabic", "macthai", "hz-gb-2312", 
+"iso-2022-jp", "iso-2022-kr", "iso-2022-cn", "armscii-8", "tscii", "iscii", "viscii", "geostd8", "cp949", "cp874", 
+"cp1006", "cp775", "cp858", "cp737", "cp853", "cp856", "cp922", "cp1046", "cp1125", "cp1131", 
+"ptcp154", "koi8-t", "koi8-ru", "mulelao-1", "cp1133", "iso-ir-166", "tcvn", "iso-ir-14", "iso-ir-87", "iso-ir-159"};
+    
+    appesModeEncoding = lowerCase(appesModeEncoding);
+    bool valid = false;
+    for (size_t i = 0; i < sizeof(ENCODINGS) / sizeof(ENCODINGS[0]); i++)
+        if (appesModeEncoding == ENCODINGS[i]) {
+            valid = true;
+            break;
+        }
+    if (!valid)
+        quit(_fail, "Unexpected encoding for setAppesModeEncoding(encoding)");
+    ::appesModeEncoding = appesModeEncoding;
+}
+
 void registerInteraction(int argc, char *argv[]) {
     __testlib_ensuresPreconditions();
     __testlib_set_testset_and_group(argc, argv);
@@ -4675,6 +4705,7 @@ void registerTestlibCmd(int argc, char *argv[]) {
 
     inf.init(args[1], _input);
     ouf.init(args[2], _output);
+    ouf.skipBom();
     ans.init(args[3], _answer);
 }
 
@@ -4827,20 +4858,6 @@ void startTest(int test) {
         __testlib_fail("Unable to write file '" + testFileName + "'");
 }
 
-inline std::string upperCase(std::string s) {
-    for (size_t i = 0; i < s.length(); i++)
-        if ('a' <= s[i] && s[i] <= 'z')
-            s[i] = char(s[i] - 'a' + 'A');
-    return s;
-}
-
-inline std::string lowerCase(std::string s) {
-    for (size_t i = 0; i < s.length(); i++)
-        if ('A' <= s[i] && s[i] <= 'Z')
-            s[i] = char(s[i] - 'A' + 'a');
-    return s;
-}
-
 inline std::string compress(const std::string &s) {
     return __testlib_part(s);
 }
@@ -4889,7 +4906,7 @@ std::string join(const _Collection &collection) {
 
 /**
  * Splits string s by character separator returning exactly k+1 items,
- * where k is the number of separator occurences.
+ * where k is the number of separator occurrences.
  */
 std::vector<std::string> split(const std::string &s, char separator) {
     std::vector<std::string> result;
@@ -4906,7 +4923,7 @@ std::vector<std::string> split(const std::string &s, char separator) {
 
 /**
  * Splits string s by character separators returning exactly k+1 items,
- * where k is the number of separator occurences.
+ * where k is the number of separator occurrences.
  */
 std::vector<std::string> split(const std::string &s, const std::string &separators) {
     if (separators.empty())
@@ -5482,7 +5499,7 @@ T optValueToIntegral(const std::string &s_, bool nonnegative) {
     for (size_t i = pos; i < s.length(); i++) {
         if (s[i] < '0' || s[i] > '9')
             __testlib_fail("Opts: expected integer but '" + compress(s_) + "' found");
-        value = value * 10 + s[i] - '0';
+        value = T(value * 10 + s[i] - '0');
         about = about * 10 + s[i] - '0';
     }
     value *= sign;
@@ -5539,7 +5556,7 @@ bool has_opt(const std::string &key) {
     return __testlib_opts.count(key) != 0;
 }
 
-/* About the followings part for opt with 2 and 3 arguments.
+/* About the following part for opt with 2 and 3 arguments.
  * 
  * To parse the argv/opts correctly for a give type (integer, floating point or
  * string), some meta programming must be done to determine the type of
@@ -5790,7 +5807,7 @@ std::string serializePoints(double points) {
         return "";
     else {
         char c[64];
-        sprintf(c, "%.03lf", points);
+        snprintf(c, 64, "%.03lf", points);
         return c;
     }
 }
@@ -5939,7 +5956,7 @@ struct TestlibScorerGuard {
 } __testlib_scorer_guard;
 
 void registerScorer(int argc, char *argv[], std::function<double(std::vector<TestResult>)> scorer) {
-    /* Supress unused. */
+    /* Suppress unused. */
     (void)(argc), (void)(argv);
 
     __testlib_ensuresPreconditions();

@@ -18,12 +18,12 @@ env:
   TEST_REF_FORBID_GEN_REFS: true
 
 jobs:
-  tests-ubuntu1804-gpp:
+  tests-ubuntu2004-gpp:
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-20.04]
         compiler: [g++]
-        version: [7, 9, 10]
+        version: [9, 10]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -33,12 +33,12 @@ jobs:
           cd tests
           bash ./run.sh ${{ matrix.compiler }} v${{ matrix.version }}
 
-  tests-ubuntu1804-clang:
+  tests-ubuntu2004-clang:
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-20.04]
         compiler: [clang++]
-        version: [9]
+        version: [10, 11, 12]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -53,7 +53,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         compiler: [g++]
-        version: [9, 10, 11]
+        version: [9, 10, 11, 12]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -68,7 +68,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         compiler: [clang++]
-        version: [12, 13, 14]
+        version: [13, 14]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -78,12 +78,12 @@ jobs:
           cd tests
           bash ./run.sh ${{ matrix.compiler }} v${{ matrix.version }}
 
-  tests-ubuntu1804-gpp-32:
+  tests-ubuntu2004-gpp-32:
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-20.04]
         compiler: [g++]
-        version: [7, 9, 10]
+        version: [9, 10]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} -m32 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -94,12 +94,12 @@ jobs:
           cd tests
           bash ./run.sh ${{ matrix.compiler }} v${{ matrix.version }} 32
 
-  tests-ubuntu1804-clang-32:
+  tests-ubuntu2004-clang-32:
     strategy:
       matrix:
-        os: [ubuntu-18.04]
+        os: [ubuntu-20.04]
         compiler: [clang++]
-        version: [9]
+        version: [10, 11, 12]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} -m32 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -131,7 +131,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         compiler: [clang++]
-        version: [12, 13, 14]
+        version: [13, 14]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} -m32 on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -147,7 +147,7 @@ jobs:
       matrix:
         os: [macos-11]
         compiler: [g++]
-        version: [9, 10]
+        version: [10, 11, 12]
     name: Use ${{ matrix.compiler }}-${{ matrix.version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -200,10 +200,53 @@ jobs:
           cd tests
           bash ./run.sh ${{ matrix.compiler }}
 
-  tests-windows:
+  tests-macos13-gpp:
     strategy:
       matrix:
-        os: [windows-2019, windows-2022]
+        os: [macos-13]
+        compiler: [g++]
+        version: [11, 12]
+    name: Use ${{ matrix.compiler }}-${{ matrix.version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          cd tests
+          bash ./run.sh ${{ matrix.compiler }} v${{ matrix.version }}
+
+  tests-macos13-clang:
+    strategy:
+      matrix:
+        os: [macos-13]
+        compiler: [clang++]
+    name: Use ${{ matrix.compiler }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          cd tests
+          bash ./run.sh ${{ matrix.compiler }}
+
+  tests-windows-2019:
+    strategy:
+      matrix:
+        os: [windows-2019]
+        compiler: [msvc, g++, clang++]
+    name: Use ${{ matrix.compiler }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          cd tests
+          bash ./run.sh ${{ matrix.compiler }}
+
+  tests-windows-2022:
+    strategy:
+      matrix:
+        os: [windows-2022]
         compiler: [msvc, g++, clang++]
     name: Use ${{ matrix.compiler }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
