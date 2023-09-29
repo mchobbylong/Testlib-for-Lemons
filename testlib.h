@@ -186,6 +186,7 @@ const char *latestFeatures[] = {
 #include <map>
 #include <set>
 #include <cmath>
+#include <iterator>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -914,7 +915,6 @@ public:
         int size = int(c.size());
         if (size <= 0)
             __testlib_fail("random_t::any(const Container& c): c.size() must be positive");
-        //return *(c.begin() + next(size));
         typename Container::const_iterator it = c.begin();
         std::advance(it, next(size));
         return *it;
@@ -923,10 +923,9 @@ public:
     /* Returns random element from iterator range. */
     template<typename Iter>
     typename Iter::value_type any(const Iter &begin, const Iter &end) {
-        int size = int(end - begin);
+        int size = static_cast<int>(std::distance(begin, end));
         if (size <= 0)
             __testlib_fail("random_t::any(const Iter& begin, const Iter& end): range must have positive length");
-        // return *(begin + next(size));
         Iter it = begin;
         std::advance(it, next(size));
         return *it;
@@ -1118,17 +1117,21 @@ public:
         int size = int(c.size());
         if (size <= 0)
             __testlib_fail("random_t::wany(const Container& c, int type): c.size() must be positive");
-        return *(c.begin() + wnext(size, type));
+        typename Container::const_iterator it = c.begin();
+        std::advance(it, wnext(size, type));
+        return *it;
     }
 
     /* Returns weighted random element from iterator range. */
     template<typename Iter>
     typename Iter::value_type wany(const Iter &begin, const Iter &end, int type) {
-        int size = int(end - begin);
+        int size = static_cast<int>(std::distance(begin, end));
         if (size <= 0)
             __testlib_fail(
                     "random_t::any(const Iter& begin, const Iter& end, int type): range must have positive length");
-        return *(begin + wnext(size, type));
+        Iter it = begin;
+        std::advance(it, wnext(size, type));
+        return *it;
     }
 
     /* Returns random permutation of the given size (values are between `first` and `first`+size-1)*/
