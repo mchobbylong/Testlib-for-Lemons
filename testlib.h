@@ -26,7 +26,7 @@
  */
 
 #define TESTLIB_FOR_LEMONS
-#define VERSION "0.9.40-SNAPSHOT-MODIFIED-LOCAL-AND-LEMON-20230929-7CF5A1E"
+#define VERSION "0.9.40-SNAPSHOT-MODIFIED-LOCAL-AND-LEMON-20230930-8D92A1D"
 
 /*
  * Mike Mirzayanov
@@ -2372,10 +2372,10 @@ struct ValidatorBoundsHit {
     ValidatorBoundsHit(bool minHit = false, bool maxHit = false) : minHit(minHit), maxHit(maxHit) {
     };
 
-    ValidatorBoundsHit merge(const ValidatorBoundsHit &validatorBoundsHit) {
+    ValidatorBoundsHit merge(const ValidatorBoundsHit &validatorBoundsHit, bool ignoreMinBound, bool ignoreMaxBound) {
         return ValidatorBoundsHit(
-                __testlib_max(minHit, validatorBoundsHit.minHit),
-                __testlib_max(maxHit, validatorBoundsHit.maxHit)
+                __testlib_max(minHit, validatorBoundsHit.minHit) || ignoreMinBound,
+                __testlib_max(maxHit, validatorBoundsHit.maxHit) || ignoreMaxBound
         );
     }
 };
@@ -2475,10 +2475,31 @@ public:
         _testCaseFileName = testCaseFileName;
     }
 
+    std::string prepVariableName(const std::string &variableName) {
+        if (variableName.length() >= 2 && variableName != "~~") {
+            if (variableName[0] == '~' && variableName.back() != '~')
+                return variableName.substr(1);
+            if (variableName[0] != '~' && variableName.back() == '~')
+                return variableName.substr(0, variableName.length() - 1);
+            if (variableName[0] == '~' && variableName.back() == '~')
+                return variableName.substr(1, variableName.length() - 2);
+        }
+        return variableName;
+    }
+
+    bool ignoreMinBound(const std::string &variableName) {
+        return variableName.length() >= 2 && variableName != "~~" && variableName[0] == '~';
+    }
+
+    bool ignoreMaxBound(const std::string &variableName) {
+        return variableName.length() >= 2 && variableName != "~~" && variableName.back() == '~';
+    }
+
     void addBoundsHit(const std::string &variableName, ValidatorBoundsHit boundsHit) {
         if (isVariableNameBoundsAnalyzable(variableName)) {
-            _boundsHitByVariableName[variableName]
-                    = boundsHit.merge(_boundsHitByVariableName[variableName]);
+            std::string preparedVariableName = prepVariableName(variableName);
+            _boundsHitByVariableName[preparedVariableName] = boundsHit.merge(_boundsHitByVariableName[preparedVariableName],
+                ignoreMinBound(variableName), ignoreMaxBound(variableName));
         }
     }
 
@@ -2514,13 +2535,23 @@ public:
         if (!_testOverviewLogFileName.empty()) {
             std::string fileName(_testOverviewLogFileName);
             _testOverviewLogFileName = "";
-            FILE *testOverviewLogFile = fopen(fileName.c_str(), "w");
-            if (NULL == testOverviewLogFile)
-                __testlib_fail("Validator::writeTestOverviewLog: can't write test overview log to (" + fileName + ")");
-            fprintf(testOverviewLogFile, "%s%s", getBoundsHitLog().c_str(), getFeaturesLog().c_str());
-            if (fclose(testOverviewLogFile))
-                __testlib_fail(
-                        "Validator::writeTestOverviewLog: can't close test overview log file (" + fileName + ")");
+
+            FILE* f;
+            bool standard_file = false;
+            if (fileName == "stdout")
+                f = stdout, standard_file = true;
+            else if (fileName == "stderr")
+                f = stderr, standard_file = true;
+            else {
+                f = fopen(fileName.c_str(), "wb");
+                if (NULL == f)
+                    __testlib_fail("Validator::writeTestOverviewLog: can't write test overview log to (" + fileName + ")");
+            }
+            fprintf(f, "%s%s", getBoundsHitLog().c_str(), getFeaturesLog().c_str());
+            std::fflush(f);
+            if (!standard_file)
+                if (std::fclose(f))
+                    __testlib_fail("Validator::writeTestOverviewLog: can't close test overview log file (" + fileName + ")");
         }
     }
 
