@@ -1678,7 +1678,7 @@ public:
     virtual void setTestCase(int testCase) = 0;
 
     virtual std::vector<int> getReadChars() = 0;
-    
+
     virtual int curChar() = 0;
 
     virtual int nextChar() = 0;
@@ -1719,7 +1719,7 @@ public:
     std::vector<int> getReadChars() {
         __testlib_fail("getReadChars not implemented in StringInputStreamReader");
     }
-    
+
     int curChar() {
         if (pos >= s.length())
             return EOFC;
@@ -1951,7 +1951,7 @@ public:
     std::vector<int> getReadChars() {
         __testlib_fail("getReadChars not implemented in BufferedFileInputStreamReader");
     }
-    
+
     int curChar() {
         if (!refill())
             return EOFC;
@@ -4091,7 +4091,7 @@ double InStream::readReal(double minv, double maxv, const std::string &variableN
         validator.adjustConstantBounds(variableName, minv, maxv);
         validator.addVariable(variableName);
     }
-    
+
     return result;
 }
 
@@ -4677,17 +4677,17 @@ void registerGen(int argc, char *argv[]) {
 #endif
 
 void setAppesModeEncoding(std::string appesModeEncoding) {
-    static const char* const ENCODINGS[] = {"ascii", "utf-7", "utf-8", "utf-16", "utf-16le", "utf-16be", "utf-32", "utf-32le", "utf-32be", "iso-8859-1", 
-"iso-8859-2", "iso-8859-3", "iso-8859-4", "iso-8859-5", "iso-8859-6", "iso-8859-7", "iso-8859-8", "iso-8859-9", "iso-8859-10", "iso-8859-11", 
-"iso-8859-13", "iso-8859-14", "iso-8859-15", "iso-8859-16", "windows-1250", "windows-1251", "windows-1252", "windows-1253", "windows-1254", "windows-1255", 
-"windows-1256", "windows-1257", "windows-1258", "gb2312", "gbk", "gb18030", "big5", "shift-jis", "euc-jp", "euc-kr", 
-"euc-cn", "euc-tw", "koi8-r", "koi8-u", "tis-620", "ibm437", "ibm850", "ibm852", "ibm855", "ibm857", 
-"ibm860", "ibm861", "ibm862", "ibm863", "ibm865", "ibm866", "ibm869", "macroman", "maccentraleurope", "maciceland", 
-"maccroatian", "macromania", "maccyrillic", "macukraine", "macgreek", "macturkish", "machebrew", "macarabic", "macthai", "hz-gb-2312", 
-"iso-2022-jp", "iso-2022-kr", "iso-2022-cn", "armscii-8", "tscii", "iscii", "viscii", "geostd8", "cp949", "cp874", 
-"cp1006", "cp775", "cp858", "cp737", "cp853", "cp856", "cp922", "cp1046", "cp1125", "cp1131", 
+    static const char* const ENCODINGS[] = {"ascii", "utf-7", "utf-8", "utf-16", "utf-16le", "utf-16be", "utf-32", "utf-32le", "utf-32be", "iso-8859-1",
+"iso-8859-2", "iso-8859-3", "iso-8859-4", "iso-8859-5", "iso-8859-6", "iso-8859-7", "iso-8859-8", "iso-8859-9", "iso-8859-10", "iso-8859-11",
+"iso-8859-13", "iso-8859-14", "iso-8859-15", "iso-8859-16", "windows-1250", "windows-1251", "windows-1252", "windows-1253", "windows-1254", "windows-1255",
+"windows-1256", "windows-1257", "windows-1258", "gb2312", "gbk", "gb18030", "big5", "shift-jis", "euc-jp", "euc-kr",
+"euc-cn", "euc-tw", "koi8-r", "koi8-u", "tis-620", "ibm437", "ibm850", "ibm852", "ibm855", "ibm857",
+"ibm860", "ibm861", "ibm862", "ibm863", "ibm865", "ibm866", "ibm869", "macroman", "maccentraleurope", "maciceland",
+"maccroatian", "macromania", "maccyrillic", "macukraine", "macgreek", "macturkish", "machebrew", "macarabic", "macthai", "hz-gb-2312",
+"iso-2022-jp", "iso-2022-kr", "iso-2022-cn", "armscii-8", "tscii", "iscii", "viscii", "geostd8", "cp949", "cp874",
+"cp1006", "cp775", "cp858", "cp737", "cp853", "cp856", "cp922", "cp1046", "cp1125", "cp1131",
 "ptcp154", "koi8-t", "koi8-ru", "mulelao-1", "cp1133", "iso-ir-166", "tcvn", "iso-ir-14", "iso-ir-87", "iso-ir-159"};
-    
+
     appesModeEncoding = lowerCase(appesModeEncoding);
     bool valid = false;
     for (size_t i = 0; i < sizeof(ENCODINGS) / sizeof(ENCODINGS[0]); i++)
@@ -5525,9 +5525,9 @@ struct TestlibOpt {
 /**
  * Get the type of opt based on the number of `-` at the beginning and the
  * _validity_ of the key name.
- * 
+ *
  * A valid key name must start with an alphabetical character.
- * 
+ *
  * Returns: 1 if s has one `-` at the beginning, that is, "-keyName".
  *          2 if s has two `-` at the beginning, that is, "--keyName".
  *          0 otherwise. That is, if s has no `-` at the beginning, or has more
@@ -5551,30 +5551,30 @@ size_t getOptType(char *s) {
 
 /**
  * Parse the opt at a given index, and put it into the opts maps.
- * 
+ *
  * An opt can has the following form:
  * 1) -keyName=value or --keyName=value     (ex. -n=10 --test-count=20)
  * 2) -keyName value or --keyName value     (ex. -n 10 --test-count 20)
  * 3) -kNumval       or --kNumval           (ex. -n10  --t20)
  * 4) -boolProperty  or --boolProperty      (ex. -sorted --tree-only)
- * 
+ *
  * Only the second form consumes 2 arguments. The other consumes only 1
  * argument.
- * 
+ *
  * In the third form, the key is a single character, and after the key is the
  * value. The value _should_ be a number.
- * 
+ *
  * In the forth form, the value is true.
- * 
+ *
  * Params:
  * - argc and argv: the number of command line arguments and the command line
  *   arguments themselves.
  * - index: the starting index of the opts.
  * - opts: the map containing the resulting opt.
- *  
+ *
  * Returns: the number of consumed arguments to parse the opt.
  *          0 if there is no arguments to parse.
- * 
+ *
  * Algorithm details:
  * TODO. Please refer to the implementation to see how the code handles the 3rd and 4th forms separately.
  */
@@ -5623,7 +5623,7 @@ std::map<std::string, TestlibOpt> __testlib_opts;
 /**
  * Whether automatic no unused opts ensurement should be done. This flag will
  * be turned on when `has_opt` or `opt(key, default_value)` is called.
- * 
+ *
  * The automatic ensurement can be suppressed when
  * __testlib_ensureNoUnusedOptsSuppressed is true.
  */
@@ -5805,7 +5805,7 @@ long double optValueToLongDouble(const std::string &s_) {
 
 /**
  * Return true if there is an opt with a given key.
- * 
+ *
  * By calling this function, automatic ensurement for no unused opts will be
  * done when the program is finalized. Call suppressEnsureNoUnusedOpts() to
  * turn it off.
@@ -5816,14 +5816,14 @@ bool has_opt(const std::string &key) {
 }
 
 /* About the following part for opt with 2 and 3 arguments.
- * 
+ *
  * To parse the argv/opts correctly for a give type (integer, floating point or
  * string), some meta programming must be done to determine the type of
  * the type, and use the correct parsing function accordingly.
- * 
+ *
  * The pseudo algorithm for determining the type of T and parse it accordingly
  * is as follows:
- * 
+ *
  * if (T is integral type) {
  *   if (T is unsigned) {
  *     parse the argv/opt as an **unsigned integer** of type T.
@@ -5837,17 +5837,17 @@ bool has_opt(const std::string &key) {
  *     just the raw content of the argv/opts.
  *   }
  * }
- * 
+ *
  * To help with meta programming, some `opt` function with 2 or 3 arguments are
  * defined.
- * 
+ *
  * Opt with 3 arguments:    T opt(true/false is_integral, true/false is_unsigned, index/key)
- * 
+ *
  *   + The first argument is for determining whether the type T is an integral
  *   type. That is, the result of std::is_integral<T>() should be passed to
  *   this argument. When false, the type _should_ be either floating point or a
  *   std::string.
- *   
+ *
  *   + The second argument is for determining whether the signedness of the type
  *   T (if it is unsigned or signed). That is, the result of
  *   std::is_unsigned<T>() should be passed to this argument. This argument can
@@ -6078,7 +6078,7 @@ double deserializePoints(std::string s) {
         double result;
         ensuref(sscanf(s.c_str(), "%lf", &result) == 1, "Invalid serialized points");
         return result;
-    }                                              
+    }
 }
 
 std::string escapeTestResultString(std::string s) {
@@ -6165,7 +6165,7 @@ TestResult deserializeTestResult(std::string s) {
     items.push_back(t);
 
     ensuref(items.size() == 12, "Invalid TestResult serialization: expected exactly 12 items");
-    
+
     TestResult tr;
     size_t pos = 0;
     tr.testIndex = stoi(items[pos++]);
@@ -6180,7 +6180,7 @@ TestResult deserializeTestResult(std::string s) {
     tr.answer = unescapeTestResultString(items[pos++]);
     tr.exitCode = stoi(items[pos++]);
     tr.checkerComment = unescapeTestResultString(items[pos++]);
-    
+
     return tr;
 }
 
@@ -6234,7 +6234,7 @@ void registerScorer(int argc, char *argv[], std::function<double(std::vector<Tes
 /**
  * Return the parsed opt by a given key. If no opts with the given key are
  * found, return the given default_value.
- * 
+ *
  * By calling this function, automatic ensurement for no unused opts will be
  * done when the program is finalized. Call suppressEnsureNoUnusedOpts() to
  * turn it off.
@@ -6250,7 +6250,7 @@ T opt(const std::string &key, const T &default_value) {
 /**
  * Return the raw string value of an opt by a given key. If no opts with the
  * given key are found, return the given default_value.
- * 
+ *
  * By calling this function, automatic ensurement for no unused opts will be
  * done when the program is finalized. Call suppressEnsureNoUnusedOpts() to
  * turn it off.
@@ -6262,7 +6262,7 @@ std::string opt(const std::string &key, const std::string &default_value) {
 /**
  * Check if all opts are used. If not, __testlib_fail is called.
  * Should be used after calling all opt() function calls.
- * 
+ *
  * This function is useful when opt() with default_value for checking typos
  * in the opt's key.
  */
