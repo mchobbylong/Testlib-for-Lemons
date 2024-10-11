@@ -3216,9 +3216,8 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
             fprintf(scoreFile, "%d", pctype);
         else
             fprintf(scoreFile, "0");
-        exit(0);
-    } else
-        halt(resultExitCode(result));
+    }
+    halt(resultExitCode(result));
 }
 
 #ifdef __GNUC__
