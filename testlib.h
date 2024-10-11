@@ -2393,7 +2393,7 @@ TTestlibMode testlibMode = _unknown;
 double __testlib_points = std::numeric_limits<float>::infinity();
 
 int perfectScore;
-bool quitpRelativeScoring = false;
+bool quitpRelativeScoring = true;
 bool partialScoreTrimming = false;
 FILE *scoreFile;
 bool localJudger;
