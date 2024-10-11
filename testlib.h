@@ -26,7 +26,7 @@
  */
 
 #define TESTLIB_FOR_LEMONS
-#define VERSION "0.9.43-SNAPSHOT-MODIFIED-LOCAL-AND-LEMON-20240816-A6E57AD"
+#define VERSION "0.9.43-FORTUNA-OJ-SNAPSHOT-MODIFIED-LOCAL-AND-LEMON-20240816-A6E57AD"
 
 /*
  * Mike Mirzayanov
@@ -2812,7 +2812,7 @@ struct TestlibFinalizeGuard {
             autoEnsureNoUnusedOpts();
 
             if (!registered)
-                __testlib_fail("Call register-function in the first line of the main (registerTestlibCmd or other similar)");
+                __testlib_fail("Call register-function in the first line of the main (registerLemonChecker)");
         }
 
         if (__testlib_exitCode == 0) {
@@ -4855,13 +4855,13 @@ public:
 
     std::string testset() const {
         if (!_initialized)
-            __testlib_fail("Checker should be initialized with registerTestlibCmd(argc, argv) instead of registerTestlibCmd() to support checker.testset()");
+            __testlib_fail("Checker should be initialized with registerLemonChecker(argc, argv) instead of registerLemonChecker() to support checker.testset()");
         return _testset;
     }
 
     std::string group() const {
         if (!_initialized)
-            __testlib_fail("Checker should be initialized with registerTestlibCmd(argc, argv) instead of registerTestlibCmd() to support checker.group()");
+            __testlib_fail("Checker should be initialized with registerLemonChecker(argc, argv) instead of registerLemonChecker() to support checker.group()");
         return _group;
     }
 
@@ -4874,68 +4874,10 @@ public:
     }
 } checker;
 
+void registerLemonChecker(int argc, char* argv[]);
+
 void registerTestlibCmd(int argc, char *argv[]) {
-    __testlib_ensuresPreconditions();
-    __testlib_set_testset_and_group(argc, argv);
-    TestlibFinalizeGuard::registered = true;
-
-    testlibMode = _checker;
-    __testlib_set_binary(stdin);
-
-    std::vector<std::string> args(1, argv[0]);
-    checker.initialize();
-
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp("--testset", argv[i])) {
-            if (i + 1 < argc && strlen(argv[i + 1]) > 0)
-                checker.setTestset(argv[++i]);
-            else
-                quit(_fail, std::string("Expected testset after --testset command line parameter"));
-        } else if (!strcmp("--group", argv[i])) {
-            if (i + 1 < argc)
-                checker.setGroup(argv[++i]);
-            else
-                quit(_fail, std::string("Expected group after --group command line parameter"));
-        } else
-            args.push_back(argv[i]);
-    }
-
-    argc = int(args.size());
-    if (argc > 1 && "--help" == args[1])
-        __testlib_help();
-
-    if (argc < 4 || argc > 6) {
-        quit(_fail, std::string("Program must be run with the following arguments: ") +
-                    std::string("[--testset testset] [--group group] <input-file> <output-file> <answer-file> [<report-file> [<-appes>]]") +
-                    "\nUse \"--help\" to get help information");
-    }
-
-    if (argc == 4) {
-        resultName = "";
-        appesMode = false;
-    }
-
-#ifndef EJUDGE
-    if (argc == 5) {
-        resultName = args[4];
-        appesMode = false;
-    }
-
-    if (argc == 6) {
-        if ("-APPES" != args[5] && "-appes" != args[5]) {
-            quit(_fail, std::string("Program must be run with the following arguments: ") +
-                        "<input-file> <output-file> <answer-file> [<report-file> [<-appes>]]");
-        } else {
-            resultName = args[4];
-            appesMode = true;
-        }
-    }
-#endif
-
-    inf.init(args[1], _input);
-    ouf.init(args[2], _output);
-    ouf.skipBom();
-    ans.init(args[3], _answer);
+    registerLemonChecker(argc, argv);
 }
 
 void registerTestlib(int argc, ...) {
