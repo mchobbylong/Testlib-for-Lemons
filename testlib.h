@@ -3211,7 +3211,7 @@ NORETURN void InStream::quit(TResult result, const char *msg) {
             if (partialScoreTrimming && perfectScore >= 2)
                 partialScore = std::min(partialScore, perfectScore - 0.6),
                 partialScore = std::max(partialScore, 0.6);
-            fprintf(scoreFile, "%.0f", partialScore);
+            fprintf(scoreFile, "%s", removeDoubleTrailingZeroes(format("%.10f", partialScore)).c_str());
         } else if (isPartial)
             fprintf(scoreFile, "%d", pctype);
         else
